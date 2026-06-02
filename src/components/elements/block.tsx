@@ -18,7 +18,7 @@ export default function Block({ attributes, children, element }: RenderElementPr
                 {showSlashMenuPrompt && (
                     <span
                         contentEditable={false}
-                        className="absolute left-2 top-0.5 text-white/25 pointer-events-none select-none font-mono text-sm"
+                        className="absolute left-2 top-1/2 -translate-y-1/2 text-white/25 pointer-events-none select-none font-mono text-sm"
                     >
                         use &apos;/&apos; for commands
                     </span>

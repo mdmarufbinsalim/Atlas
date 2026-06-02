@@ -48,7 +48,27 @@ export default function AtlasEditor() {
         if (mod && e.key.toLowerCase() === 'b') { e.preventDefault(); toggleMark(editor, 'bold'); return }
         if (mod && e.key.toLowerCase() === 'u') { e.preventDefault(); toggleMark(editor, 'underlined'); return }
         if (mod && e.shiftKey && e.key.toLowerCase() === 's') { e.preventDefault(); toggleMark(editor, 'striked'); return }
-        if (slashState && (e.key === ' ' || e.key === 'Escape')) setSlashState(null)
+        if (slashState && (e.key === ' ' || e.key === 'Escape')) { setSlashState(null); return }
+
+        // Markdown heading shortcuts: # → H1, ## → H2, ### → H3, #### → H4
+        if (e.key === ' ' && editor.selection) {
+            const { focus } = editor.selection
+            const [node] = Editor.node(editor, focus.path)
+            if (Text.isText(node)) {
+                const textBefore = node.text.slice(0, focus.offset)
+                const match = textBefore.match(/(?:^| )(#{1,4})$/)
+                if (match) {
+                    e.preventDefault()
+                    const hashes = match[1]
+                    const modeMap: Record<number, Mode> = { 1: 'header_1', 2: 'header_2', 3: 'header_3', 4: 'header_4' }
+                    Transforms.delete(editor, {
+                        at: { anchor: { path: focus.path, offset: focus.offset - hashes.length }, focus: { path: focus.path, offset: focus.offset } }
+                    })
+                    Editor.addMark(editor, 'mode', modeMap[hashes.length])
+                    return
+                }
+            }
+        }
     }, [editor, slashState])
 
     const handleChange = useCallback((value: Descendant[]) => {
