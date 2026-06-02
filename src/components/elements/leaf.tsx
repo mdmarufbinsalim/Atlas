@@ -11,16 +11,20 @@ const MODE_CLASSES: Record<Mode, string> = {
 }
 
 export default function Leaf({ attributes, children, leaf }: RenderLeafProps) {
+    const decorations = [
+        leaf.underlined && 'underline',
+        leaf.striked && 'line-through',
+    ].filter(Boolean).join(' ')
+
     return (
         <span
             {...attributes}
             className={cn(
                 'font-mono',
                 leaf.mode && MODE_CLASSES[leaf.mode],
-                leaf.bold && 'font-bold',
-                leaf.striked && 'line-through',
-                leaf.underlined && 'underline',
+                leaf.bold && 'font-extrabold',
             )}
+            style={decorations ? { textDecorationLine: decorations } : undefined}
         >
             {children}
         </span>

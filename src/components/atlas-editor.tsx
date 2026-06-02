@@ -5,16 +5,17 @@ import { Editable, RenderElementProps, RenderLeafProps, Slate, withReact } from 
 import Leaf from "./elements/leaf"
 import Block from "./elements/block"
 import SlashMenu from "./slash-menu"
+import SelectionToolbar from "./selection-toolbar"
 import { Mode } from "@/types/slate.types"
 
 const initialValue: Descendant[] = [
     {
         type: 'block',
-        children: [{ text: 'First line of text.' }],
+        children: [{ text: 'First line of text.', mode: 'text' }],
     },
     {
         type: 'block',
-        children: [{ text: 'Second line of text.' }],
+        children: [{ text: 'Second line of text.', mode: 'text' }],
     },
 ]
 
@@ -123,6 +124,7 @@ export default function AtlasEditor() {
                 />
                 <div className="flex-1 grow min-h-6" />
             </div>
+            <SelectionToolbar />
             {slashState && (
                 <SlashMenu
                     anchor={slashState.anchor}
