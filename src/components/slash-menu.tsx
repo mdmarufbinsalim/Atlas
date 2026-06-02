@@ -80,7 +80,7 @@ export default function SlashMenu({ anchor, query, onSelect, onClose }: Props) {
     if (!filtered.length) return null
 
     return (
-        <div ref={menuRef} style={style} className="z-50 min-w-50 rounded-lg border border-white/10 bg-[#252525] shadow-2xl py-1">
+        <div ref={menuRef} style={style} className="z-50 w-52 max-w-[calc(100vw-16px)] rounded-lg border border-white/10 bg-[#252525] shadow-2xl py-1">
             {filtered.map((item, i) => (
                 <div
                     key={item.mode}

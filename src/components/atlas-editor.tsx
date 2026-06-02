@@ -1,11 +1,12 @@
 "use client"
 import { useCallback, useState } from "react"
-import { createEditor, Descendant, Editor, Text, Transforms } from "slate"
-import { Editable, RenderElementProps, RenderLeafProps, Slate, withReact } from "slate-react"
+import { createEditor, Descendant, Editor, Element, Text, Transforms } from "slate"
+import { Editable, ReactEditor, RenderElementProps, RenderLeafProps, Slate, withReact } from "slate-react"
 import Leaf from "./elements/leaf"
 import Block from "./elements/block"
 import SlashMenu from "./slash-menu"
 import SelectionToolbar from "./selection-toolbar"
+import { DragProvider } from "@/lib/drag-context"
 import { Mode } from "@/types/slate.types"
 
 const initialValue: Descendant[] = [
@@ -25,6 +26,18 @@ type SlashState = {
     slashOffset: number
 } | null
 
+function withDefaults(editor: ReturnType<typeof withReact>) {
+    const { normalizeNode } = editor
+    editor.normalizeNode = ([node, path]) => {
+        if (Text.isText(node) && node.mode === undefined) {
+            Transforms.setNodes(editor, { mode: 'text' }, { at: path })
+            return
+        }
+        normalizeNode([node, path])
+    }
+    return editor
+}
+
 function toggleMark(editor: ReturnType<typeof withReact>, mark: 'bold' | 'striked' | 'underlined') {
     const isActive = Editor.marks(editor)?.[mark] === true
     if (isActive) Editor.removeMark(editor, mark)
@@ -32,7 +45,7 @@ function toggleMark(editor: ReturnType<typeof withReact>, mark: 'bold' | 'strike
 }
 
 export default function AtlasEditor() {
-    const [editor] = useState(() => withReact(createEditor()))
+    const [editor] = useState(() => withDefaults(withReact(createEditor())))
     const [slashState, setSlashState] = useState<SlashState>(null)
 
     const renderElement = useCallback((props: RenderElementProps) => {
@@ -73,6 +86,7 @@ export default function AtlasEditor() {
     }, [editor, slashState])
 
     const handleChange = useCallback((value: Descendant[]) => {
+        console.log(value)
         void value
         const { selection } = editor
         if (!selection) { setSlashState(null); return }
@@ -113,26 +127,42 @@ export default function AtlasEditor() {
         setSlashState(null)
     }, [editor, slashState])
 
+    const handleSpacerClick = useCallback(() => {
+        const lastIndex = editor.children.length - 1
+        const last = editor.children[lastIndex]
+        const isEmpty = Element.isElement(last) && last.children.every(c => Text.isText(c) && c.text === '')
+
+        if (isEmpty) {
+            Transforms.select(editor, { anchor: { path: [lastIndex, 0], offset: 0 }, focus: { path: [lastIndex, 0], offset: 0 } })
+        } else {
+            Transforms.insertNodes(editor, { type: 'block', children: [{ text: '', mode: 'text' }] }, { at: [lastIndex + 1] })
+            Transforms.select(editor, { anchor: { path: [lastIndex + 1, 0], offset: 0 }, focus: { path: [lastIndex + 1, 0], offset: 0 } })
+        }
+        ReactEditor.focus(editor)
+    }, [editor])
+
     return (
-        <Slate editor={editor} initialValue={initialValue} onChange={handleChange}>
-            <div className="flex flex-col flex-1 border w-full overflow-y-auto bg-editor-background">
-                <Editable
-                    renderElement={renderElement}
-                    renderLeaf={renderLeaf}
-                    onKeyDown={handleKeyDown}
-                    className="flex flex-col outline-0 text-editor-text gap-2"
-                />
-                <div className="flex-1 grow min-h-6" />
-            </div>
-            <SelectionToolbar />
-            {slashState && (
-                <SlashMenu
-                    anchor={slashState.anchor}
-                    query={slashState.query}
-                    onSelect={handleSlashSelect}
-                    onClose={() => setSlashState(null)}
-                />
-            )}
-        </Slate>
+        <DragProvider>
+            <Slate editor={editor} initialValue={initialValue} onChange={handleChange}>
+                <div className="flex flex-col flex-1 border w-full overflow-y-auto bg-editor-background">
+                    <Editable
+                        renderElement={renderElement}
+                        renderLeaf={renderLeaf}
+                        onKeyDown={handleKeyDown}
+                        className="flex flex-col outline-0 text-editor-text gap-1 px-2 py-3 sm:px-6 sm:py-6"
+                    />
+                    <div className="flex-1 grow min-h-6 cursor-text" onClick={handleSpacerClick} />
+                </div>
+                <SelectionToolbar />
+                {slashState && (
+                    <SlashMenu
+                        anchor={slashState.anchor}
+                        query={slashState.query}
+                        onSelect={handleSlashSelect}
+                        onClose={() => setSlashState(null)}
+                    />
+                )}
+            </Slate>
+        </DragProvider>
     )
 }

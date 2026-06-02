@@ -14,7 +14,7 @@ const MODES: { mode: Mode; label: string; icon: string }[] = [
     { mode: 'header_4', label: 'Heading 4',   icon: 'H4' },
 ]
 
-const GAP = 8
+const GAP = 20
 
 function getUniformValue<K extends keyof FormattedText>(
     editor: Editor,
@@ -79,7 +79,7 @@ export default function SelectionToolbar() {
         <div
             ref={ref}
             style={style}
-            className="z-50 w-56 rounded-xl border border-white/10 bg-[#252525] shadow-2xl overflow-hidden"
+            className="z-50 w-56 max-w-[calc(100vw-16px)] rounded-xl border border-white/10 bg-[#252525] shadow-2xl overflow-hidden"
         >
             {/* Mode list */}
             <div className="py-1">
