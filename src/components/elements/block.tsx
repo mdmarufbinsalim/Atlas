@@ -30,13 +30,13 @@ export default function Block({
             {isTarget && dropBefore && (
                 <div
                     contentEditable={false}
-                    className="pointer-events-none absolute -top-px left-8 right-0 h-0.5 rounded-full bg-blue-400 z-10"
+                    className="pointer-events-none absolute -top-px left-0 right-0 h-0.5 rounded-full bg-blue-400 z-10"
                 />
             )}
 
             <div
                 contentEditable={false}
-                className="h-13.5 flex items-center gap-0.5 shrink-0"
+                className="h-12 border flex items-center gap-0.5 shrink-0"
             >
                 <div
                     className="p-2 rounded opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity duration-300 cursor-pointer hover:bg-white/10 active:bg-white/15"
@@ -58,7 +58,9 @@ export default function Block({
                 </div>
             </div>
 
-            <div className="relative flex-1 min-w-0 min-h-12">
+            <div className="relative flex-1 min-w-0 min-h-12 border"
+                style={{ lineHeight: 0, fontSize: 0 }}
+            >
                 {showSlashMenuPrompt && (
                     <span
                         contentEditable={false}

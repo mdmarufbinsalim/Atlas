@@ -2,6 +2,7 @@
 import { useCallback, useState } from "react"
 import { createEditor, Descendant, Editor, Element, Text, Transforms } from "slate"
 import { Editable, ReactEditor, RenderElementProps, RenderLeafProps, Slate, withReact } from "slate-react"
+import { withHistory } from "slate-history"
 import Leaf from "./elements/leaf"
 import Block from "./elements/block"
 import SlashMenu from "./slash-menu"
@@ -16,7 +17,7 @@ const initialValue: Descendant[] = [
     },
     {
         type: 'block',
-        children: [{ text: 'Second line of text.', mode: 'text' }],
+        children: [{ text: 'Second line of text.', mode: 'header_4' }, { text: 'Second line of text.', mode: 'text' }],
     },
 ]
 
@@ -26,7 +27,7 @@ type SlashState = {
     slashOffset: number
 } | null
 
-function withDefaults(editor: ReturnType<typeof withReact>) {
+function withDefaults(editor: ReturnType<typeof withHistory<ReturnType<typeof withReact>>>) {
     const { normalizeNode } = editor
     editor.normalizeNode = ([node, path]) => {
         if (Text.isText(node) && node.mode === undefined) {
@@ -38,14 +39,14 @@ function withDefaults(editor: ReturnType<typeof withReact>) {
     return editor
 }
 
-function toggleMark(editor: ReturnType<typeof withReact>, mark: 'bold' | 'striked' | 'underlined') {
+function toggleMark(editor: ReturnType<typeof withHistory<ReturnType<typeof withReact>>>, mark: 'bold' | 'striked' | 'underlined') {
     const isActive = Editor.marks(editor)?.[mark] === true
     if (isActive) Editor.removeMark(editor, mark)
     else Editor.addMark(editor, mark, true)
 }
 
 export default function AtlasEditor() {
-    const [editor] = useState(() => withDefaults(withReact(createEditor())))
+    const [editor] = useState(() => withDefaults(withHistory(withReact(createEditor()))))
     const [slashState, setSlashState] = useState<SlashState>(null)
 
     const renderElement = useCallback((props: RenderElementProps) => {
@@ -59,6 +60,8 @@ export default function AtlasEditor() {
 
     const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
         const mod = e.metaKey || e.ctrlKey
+        if (mod && !e.shiftKey && e.key.toLowerCase() === 'z') { e.preventDefault(); editor.undo(); return }
+        if (mod && (e.key.toLowerCase() === 'y' || (e.shiftKey && e.key.toLowerCase() === 'z'))) { e.preventDefault(); editor.redo(); return }
         if (mod && e.key.toLowerCase() === 'b') { e.preventDefault(); toggleMark(editor, 'bold'); return }
         if (mod && e.key.toLowerCase() === 'u') { e.preventDefault(); toggleMark(editor, 'underlined'); return }
         if (mod && e.shiftKey && e.key.toLowerCase() === 's') { e.preventDefault(); toggleMark(editor, 'striked'); return }
@@ -150,6 +153,10 @@ export default function AtlasEditor() {
                         renderLeaf={renderLeaf}
                         onKeyDown={handleKeyDown}
                         className="flex flex-col outline-0 text-editor-text gap-1 px-2 py-3 sm:px-6 sm:py-6"
+                        style={{
+                            lineHeight: 0,
+                            fontSize: 0,
+                        }}
                     />
                     <div className="flex-1 grow min-h-6 cursor-text" onClick={handleSpacerClick} />
                 </div>
