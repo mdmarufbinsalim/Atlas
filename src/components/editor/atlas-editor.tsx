@@ -1,6 +1,6 @@
 "use client"
 import { useCallback, useState } from "react"
-import { createEditor, Descendant } from "slate"
+import { createEditor } from "slate"
 import { Editable, RenderElementProps, RenderLeafProps, Slate, withReact } from "slate-react"
 import { withHistory } from "slate-history"
 import { DndContext, DragOverlay, closestCenter } from "@dnd-kit/core"
@@ -16,17 +16,7 @@ import { useSlashMenu } from "./hooks/useSlashMenu"
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts"
 import { useDragSort } from "./hooks/useDragSort"
 import { useSpacerClick } from "./hooks/useSpacerClick"
-
-const initialValue: Descendant[] = [
-    {
-        type: 'block',
-        children: [{ text: 'First line of text.', mode: 'text' }],
-    },
-    {
-        type: 'block',
-        children: [{ text: 'Second line of text.', mode: 'header_4' }, { text: 'Second line of text.', mode: 'text' }],
-    },
-]
+import { initialValue } from "@/data/initial-content"
 
 export default function AtlasEditor() {
     const [editor] = useState(() => withDefaults(withHistory(withReact(createEditor()))))
