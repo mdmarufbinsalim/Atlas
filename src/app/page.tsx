@@ -1,4 +1,4 @@
-import AtlasEditor from "@/components/atlas-editor";
+import AtlasEditor from "@/components/editor/atlas-editor";
 
 export default function Home() {
     return (

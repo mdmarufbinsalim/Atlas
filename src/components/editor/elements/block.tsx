@@ -36,7 +36,7 @@ export default function Block({
 
             <div
                 contentEditable={false}
-                className="h-12 border flex items-center gap-0.5 shrink-0"
+                className="h-12 flex items-center gap-0.5 shrink-0"
             >
                 <div
                     className="p-2 rounded opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity duration-300 cursor-pointer hover:bg-white/10 active:bg-white/15"
@@ -58,7 +58,7 @@ export default function Block({
                 </div>
             </div>
 
-            <div className="relative flex-1 min-w-0 min-h-12 border"
+            <div className="relative flex-1 min-w-0 min-h-12"
                 style={{ lineHeight: 0, fontSize: 0 }}
             >
                 {showSlashMenuPrompt && (
